@@ -9,7 +9,7 @@ async fn main() -> anyhow::Result<()> {
     let client = Client::try_default().await.unwrap();
 
     // Api for namespaced CRDs
-    let clusters: Api<Cluster> = Api::namespaced(client, "k3k-meow"); // adjust namespace
+    let clusters: Api<Cluster> = Api::all(client); // adjust namespace
 
     // List all Cluster objects
     let lp = ListParams::default();
