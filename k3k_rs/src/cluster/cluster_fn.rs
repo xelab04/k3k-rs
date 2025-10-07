@@ -34,3 +34,10 @@ pub async fn get(client: &Client, namespace: &str, name: &str) -> anyhow::Result
     let obj = api.get(name).await?;
     Ok(obj)
 }
+
+pub async fn create(client: &Client, namespace: &str, cluster: &Cluster) -> anyhow::Result<Cluster> {
+    let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
+    let pp = PostParams::default();
+    let obj = api.create(&pp, cluster).await?;
+    Ok(obj)
+}
