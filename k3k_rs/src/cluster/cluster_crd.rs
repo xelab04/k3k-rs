@@ -108,9 +108,9 @@ pub struct PersistenceSpec {
     #[serde(default)]
     pub r#type: Option<String>,
     #[serde(default)]
-    pub storage_class_name: Option<String>,
+    pub storageClassName: Option<String>,
     #[serde(default)]
-    pub storage_request_size: Option<String>,
+    pub storageRequestSize: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
@@ -176,16 +176,20 @@ pub struct ClusterStatus {
 impl Default for ClusterSpec {
     fn default() -> Self {
         ClusterSpec {
-            mode: String::from("shared"),
-            servers: 1,
             agents: 0,
+            expose: None,
+            mode: String::from("shared"),
+            persistence: Some(PersistenceSpec {
+                r#type: Some("dynamic".to_string()),
+                storageClassName: None,
+                storageRequestSize: Some("1G".to_string()),
+            }),
+            servers: 1,
+            tlsSANs: None,
             version: String::new(),
             nodeSelector: None,
-            persistence: None,
-            expose: None,
             serverEnvs: None,
             agentEnvs: None,
-            tlsSANs: None,
             agentArgs: None,
             serverArgs: None,
             clusterCIDR: None,

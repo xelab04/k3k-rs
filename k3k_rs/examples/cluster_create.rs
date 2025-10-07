@@ -1,23 +1,17 @@
-use kube::{Api, Client, ResourceExt};
+use serde_yaml;
+use kube::{Client};
+use k3k_rs;
 use k3k_rs::cluster::{
     Cluster, ClusterSpec, ExposeSpec, ExposeLoadBalancer, ExposeNodePort, ExposeIngress,
     PersistenceSpec,
 };
-use kube::api::{PostParams};
-use serde_yaml;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Connect to cluster (KUBECONFIG or in-cluster)
     let client = Client::try_default().await?;
 
-    // Api for namespaced CRDs
-    // let clusters: Api<Cluster> = Api::namespaced(client, "k3k-default"); // adjust namespace
-    let clusters: Api<Cluster> = Api::all(client); // without namespace so i can deploy anywhere i guess
-
-
     // Build Cluster object in memory
-    let cluster = Cluster {
+    let cluster_schema = Cluster {
         metadata: kube::core::ObjectMeta {
             name: Some("test-cluster".to_string()),
             namespace: Some("k3k-default".to_string()),
@@ -45,14 +39,11 @@ async fn main() -> anyhow::Result<()> {
         status: None,
     };
 
-    // serialize to YAML for inspection
-    let yaml = serde_yaml::to_string(&cluster)?;
-    println!("Cluster YAML:\n{}", yaml);
+    let response = k3k_rs::cluster::create(&client, "k3k-default", &cluster_schema).await?;
 
-    // create the Cluster in Kubernetes
-    // let pp = PostParams::default();
-    // let created = clusters.create(&pp, &cluster).await?;
-    // println!("Created cluster: {}", created.name_any());
+    // serialize to YAML for inspection
+    let yaml = serde_yaml::to_string(&response)?;
+    println!("Cluster YAML:\n{}", yaml);
 
     Ok(())
 }
