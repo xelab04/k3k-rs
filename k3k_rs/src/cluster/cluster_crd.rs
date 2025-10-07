@@ -23,7 +23,6 @@ mod defaults {
 )]
 
 #[kube(status = "ClusterStatus")]
-#[derive(Default)]
 pub struct ClusterSpec {
     // spec.mode => shared | virtual
     #[serde(default = "defaults::cluster_type")]
