@@ -1,6 +1,7 @@
 use kube::CustomResource;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 mod defaults {
     pub fn cluster_type() -> String { String::from("shared")}
@@ -22,6 +23,7 @@ mod defaults {
 )]
 
 #[kube(status = "ClusterStatus")]
+#[derive(Default)]
 pub struct ClusterSpec {
     // spec.mode => shared | virtual
     #[serde(default = "defaults::cluster_type")]
@@ -40,8 +42,8 @@ pub struct ClusterSpec {
     pub version: String,
 
     /// spec.nodeSelector
-    #[serde(default = "defaults::empty_obj")]
-    pub nodeSelector: String,
+    #[serde(default)]
+    pub nodeSelector: Option<BTreeMap<String, String>>,
 
     // obligatory spec.persistence
     #[serde(default)]
@@ -93,7 +95,11 @@ pub struct ClusterSpec {
 
     // spec.serverLimit
     #[serde(default)]
-    pub serverLimit: Option<String>,
+    pub serverLimit: Option<BTreeMap<String, String>>,
+
+    // spec.serverLimit
+    #[serde(default)]
+    pub workerLimit: Option<BTreeMap<String, String>>,
 
     // wow these comments are useless
 }
@@ -137,7 +143,7 @@ pub struct ExposeNodePort {
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
 pub struct ExposeIngress {
     #[serde(default)]
-    pub annotations: Option<String>,
+    pub annotations: Option<BTreeMap<String, String>>,
     #[serde(default)]
     pub ingressClassName: Option<String>,
 }
@@ -165,4 +171,31 @@ pub struct ClusterStatus {
     pub clusterDNS: Option<String>,
     pub persistence: Option<PersistenceSpec>,
     pub tlsSANs: Vec<String>,
+}
+
+
+impl Default for ClusterSpec {
+    fn default() -> Self {
+        ClusterSpec {
+            mode: String::from("shared"),
+            servers: 1,
+            agents: 0,
+            version: String::new(),
+            nodeSelector: None,
+            persistence: None,
+            expose: None,
+            serverEnvs: None,
+            agentEnvs: None,
+            tlsSANs: None,
+            agentArgs: None,
+            serverArgs: None,
+            clusterCIDR: None,
+            clusterDNS: None,
+            priorityClass: None,
+            serviceCIDR: None,
+            tokenSecretRef: None,
+            serverLimit: None,
+            workerLimit: None,
+        }
+    }
 }
