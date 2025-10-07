@@ -1,5 +1,5 @@
 use kube::{Api, Client, ResourceExt};
-use kube::api::{PostParams};
+use kube::api::{PostParams, DeleteParams};
 use crate::cluster::Cluster;
 
 
@@ -28,7 +28,6 @@ pub async fn cluster_list(client: &Client, namespace: Option<&str>) -> anyhow::R
     Ok(list.items)
 }
 
-
 pub async fn get(client: &Client, namespace: &str, name: &str) -> anyhow::Result<Cluster> {
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let obj = api.get(name).await?;
@@ -40,4 +39,11 @@ pub async fn create(client: &Client, namespace: &str, cluster: &Cluster) -> anyh
     let pp = PostParams::default();
     let obj = api.create(&pp, cluster).await?;
     Ok(obj)
+}
+
+pub async fn delete(client: &Client, namespace: &str, cluster_name: &str) -> anyhow::Result<()> {
+    let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
+    let dp = DeleteParams::default();
+    let obj = api.delete(cluster_name, &dp).await?;
+    Ok(())
 }
