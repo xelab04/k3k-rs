@@ -2,6 +2,13 @@
 name = "k3k-rs"
 version = "0.1.0"
 edition = "2024"
+description = "Rust client library for managing K3k virtual clusters"
+license = "MIT"
+repository = "https://github.com/xelab04/k3k-rs"
+readme = "README.md"
+authors = ["Alex Bissessur <alexbissessur@gmail.com>"]
+categories = ["kubernetes", "devops", "cloud"]
+keywords = ["kubernetes"]
 
 [dependencies]
 kube = { version = "2.0.1", features = ["runtime", "derive"] }
