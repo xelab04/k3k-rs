@@ -41,7 +41,7 @@ pub struct ClusterSpec {
 
     /// spec.nodeSelector
     #[serde(default = "defaults::empty_obj")]
-    pub node_selector: String,
+    pub nodeSelector: String,
 
     // obligatory spec.persistence
     #[serde(default)]
@@ -53,11 +53,11 @@ pub struct ClusterSpec {
 
     // spec.serverEnvs
     #[serde(default)]
-    pub server_envs: Option<Vec<EnvVar>>,
+    pub serverEnvs: Option<Vec<EnvVar>>,
 
     // spec.agentEnvs
     #[serde(default)]
-    pub agent_envs: Option<Vec<EnvVar>>,
+    pub agentEnvs: Option<Vec<EnvVar>>,
 
     // spec.tlsSANs
     #[serde(default)]
