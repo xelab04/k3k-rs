@@ -1,3 +1,4 @@
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use kube::CustomResource;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -55,22 +56,26 @@ pub struct ClusterSpec {
     // spec.serverEnvs
     #[serde(default)]
     pub serverEnvs: Option<Vec<EnvVar>>,
+    // spec.serverArgs
+    #[serde(default)]
+    pub serverArgs: Option<Vec<String>>,
+    // spec.serverLimit
+    #[serde(default)]
+    pub serverLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
 
     // spec.agentEnvs
     #[serde(default)]
     pub agentEnvs: Option<Vec<EnvVar>>,
+    // spec.agentArgs
+    #[serde(default)]
+    pub agentArgs: Option<Vec<String>>,
+    // spec.workerLimit
+    #[serde(default)]
+    pub workerLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
 
     // spec.tlsSANs
     #[serde(default)]
     pub tlsSANs: Option<Vec<String>>,
-
-    // spec.agentArgs
-    #[serde(default)]
-    pub agentArgs: Option<Vec<String>>,
-
-    // spec.serverArgs
-    #[serde(default)]
-    pub serverArgs: Option<Vec<String>>,
 
     // spec.clusterCIDR
     #[serde(default)]
@@ -92,15 +97,39 @@ pub struct ClusterSpec {
     #[serde(default)]
     pub tokenSecretRef: Option<TokenSecretRefSpec>,
 
-    // spec.serverLimit
+    // spec.mirrorHostNodes
     #[serde(default)]
-    pub serverLimit: Option<BTreeMap<String, String>>,
+    pub mirrorHostNodes: Option<bool>,
 
-    // spec.serverLimit
+    // spec.sync
     #[serde(default)]
-    pub workerLimit: Option<BTreeMap<String, String>>,
+    pub sync: Option<SyncSpec>,
 
     // wow these comments are useless
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
+pub struct SyncSpec {
+    #[serde(default)]
+    pub configmaps: Option<SyncResourceSpec>,
+    #[serde(default)]
+    pub ingresses: Option<SyncResourceSpec>,
+    #[serde(default)]
+    pub persistentVolumeClaims: Option<SyncResourceSpec>,
+    #[serde(default)]
+    pub priorityClasses: Option<SyncResourceSpec>,
+    #[serde(default)]
+    pub secrets: Option<SyncResourceSpec>,
+    #[serde(default)]
+    pub services: Option<SyncResourceSpec>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
+pub struct SyncResourceSpec {
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default)]
+    pub selector: Option<BTreeMap<String, String>,>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
@@ -182,11 +211,39 @@ impl Default for ClusterSpec {
             persistence: Some(PersistenceSpec {
                 r#type: Some("dynamic".to_string()),
                 storageClassName: None,
-                storageRequestSize: Some("1G".to_string()),
+                storageRequestSize: Some("2G".to_string()),
             }),
             servers: 1,
             tlsSANs: None,
             version: String::new(),
+            mirrorHostNodes: Some(false),
+            sync: Some(SyncSpec {
+                configmaps: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+                ingresses: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+                persistentVolumeClaims: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+                priorityClasses: Some(SyncResourceSpec {
+                    enabled: false,
+                    selector: None,
+                }),
+                secrets: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+                services: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+            }),
+
             nodeSelector: None,
             serverEnvs: None,
             agentEnvs: None,
