@@ -223,7 +223,7 @@ impl Default for ClusterSpec {
                     selector: None,
                 }),
                 ingresses: Some(SyncResourceSpec {
-                    enabled: true,
+                    enabled: false,
                     selector: None,
                 }),
                 persistentVolumeClaims: Some(SyncResourceSpec {

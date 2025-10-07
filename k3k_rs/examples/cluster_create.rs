@@ -3,7 +3,7 @@ use kube::{Client};
 use k3k_rs;
 use k3k_rs::cluster::{
     Cluster, ClusterSpec, ExposeSpec, ExposeLoadBalancer, ExposeNodePort, ExposeIngress,
-    PersistenceSpec,
+    PersistenceSpec, SyncSpec, SyncResourceSpec
 };
 
 #[tokio::main]
@@ -23,8 +23,8 @@ async fn main() -> anyhow::Result<()> {
             mode: "shared".to_string(),
             persistence: Some(PersistenceSpec {
                 r#type: Some("dynamic".to_string()),
-                storage_class_name: None,
-                storage_request_size: Some("1G".to_string()),
+                storageClassName: None,
+                storageRequestSize: Some("1G".to_string()),
             }),
             expose: Some(ExposeSpec {
                 LoadBalancer: Some(ExposeLoadBalancer {
@@ -33,6 +33,13 @@ async fn main() -> anyhow::Result<()> {
                 }),
                 NodePort: None,
                 Ingress: None,
+            }),
+            sync: Some(SyncSpec{
+                ingresses: Some(SyncResourceSpec {
+                    enabled: true,
+                    selector: None,
+                }),
+                ..Default::default()
             }),
             ..Default::default()
         },
