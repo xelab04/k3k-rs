@@ -7,7 +7,7 @@ use serde_yaml;
 async fn main() -> anyhow::Result<()> {
 
     let client = Client::try_default().await?;
-    let list = cluster::list(&client, "k3k-namespace").await?;
+    let list = cluster::list::namespaced(&client, "k3k-namespace").await?;
 
     for c in list {
         let yaml = serde_yaml::to_string(&c)?;
