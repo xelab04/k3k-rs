@@ -1,3 +1,6 @@
+use k3k_rs::cluster_crd;
+
+
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
