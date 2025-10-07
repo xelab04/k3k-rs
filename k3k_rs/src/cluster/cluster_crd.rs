@@ -2,6 +2,15 @@ use kube::CustomResource;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+mod defaults {
+    pub fn cluster_type() -> String { String::from("shared")}
+    pub const fn zero() -> i32 { 0 }
+    pub fn one() -> i32 { 1 }
+    pub fn empty_vec<T>() -> Vec<T> { Vec::new() }
+    pub fn empty_obj() -> String { String::from("{}") }
+    pub fn empty_str() -> String { String::new() }
+}
+
 /// Represents a k3k cluster
 #[derive(CustomResource, Serialize, Deserialize, Debug, Clone, JsonSchema)]
 #[kube(
@@ -15,24 +24,24 @@ use serde::{Deserialize, Serialize};
 #[kube(status = "ClusterStatus")]
 pub struct ClusterSpec {
     // spec.mode => shared | virtual
-    #[serde(default = "shared")]
+    #[serde(default = "defaults::cluster_type")]
     pub mode: String,
 
     // spec.servers => >= 1
-    #[serde(default = "1")]
+    #[serde(default = "defaults::one")]
     pub servers: i32,
 
     // spec.agents => >= 0 (not needed in shared)
-    #[serde(default = "0")]
-    pub agents: Option<i32>,
+    #[serde(default = "defaults::zero")]
+    pub agents: i32,
 
     // spec.version
-    #[serde(default = "")]
-    pub version: Option<String>,
+    #[serde(default = "defaults::empty_str")]
+    pub version: String,
 
     /// spec.nodeSelector
-    #[serde(default = "{}")]
-    pub node_selector: Option<String>,
+    #[serde(default = "defaults::empty_obj")]
+    pub node_selector: String,
 
     // obligatory spec.persistence
     #[serde(default)]
@@ -86,10 +95,6 @@ pub struct ClusterSpec {
     #[serde(default)]
     pub serverLimit: Option<String>,
 
-    // spec.serviceCIDR
-    #[serde(default)]
-    pub serviceCIDR: Option<String>,
-
     // wow these comments are useless
 }
 
@@ -138,31 +143,26 @@ pub struct ExposeIngress {
 }
 
 /// Basic environment variable type
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
 pub struct EnvVar {
     pub name: String,
     #[serde(default)]
     pub value: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
 pub struct TokenSecretRefSpec {
     pub name: String,
     #[serde(default)]
     pub namespace: Option<String>,
 }
 
-/// Cluster status
-use serde::{Serialize, Deserialize};
-use schemars::JsonSchema;
-
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct ClusterStatus {
-    pub host_version: Option<String>,
-    pub cluster_cidr: Option<String>,
-    pub service_cidr: Option<String>,
-    pub cluster_dns: Option<String>,
+    pub hostVersion: Option<String>,
+    pub clusterCIDR: Option<String>,
+    pub serviceCIDR: Option<String>,
+    pub clusterDNS: Option<String>,
     pub persistence: Option<PersistenceSpec>,
-    #[serde(default)]
-    pub tls_sans: Vec<String>,
+    pub tlsSANs: Vec<String>,
 }
