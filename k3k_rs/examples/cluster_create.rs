@@ -46,11 +46,19 @@ async fn main() -> anyhow::Result<()> {
         status: None,
     };
 
-    let response = k3k_rs::cluster::create(&client, "k3k-default", &cluster_schema).await?;
+    let response = k3k_rs::cluster::create(&client, "k3k-default", &cluster_schema).await;
 
-    // serialize to YAML for inspection
-    let yaml = serde_yaml::to_string(&response)?;
+    let mut result;
+    match response {
+        Err(e) => {println!("Error creating cluster {}: {}", cluster_schema.metadata.name.unwrap(), e); return Ok(());}
+
+        Ok(response) => {
+            println!("Cluster created successfully");
+            result = response;
+        }
+    }
+
+    let yaml = serde_yaml::to_string(&result)?;
     println!("Cluster YAML:\n{}", yaml);
-
-    Ok(())
+    return Ok(());
 }

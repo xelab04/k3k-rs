@@ -1,7 +1,11 @@
-use kube::{Api, Client, ResourceExt};
-use kube::api::{PostParams, DeleteParams};
-use crate::cluster::Cluster;
+use kube::{Api, Client, ResourceExt, Error as KubeError };
+use kube::error::ErrorResponse;
 
+use kube::api::{PostParams, DeleteParams};
+use k8s_openapi::api::core::v1::Namespace;
+use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
+use serde::de;
+use crate::cluster::Cluster;
 
 pub mod list {
     use super::*;
@@ -35,8 +39,30 @@ pub async fn get(client: &Client, namespace: &str, name: &str) -> anyhow::Result
 }
 
 pub async fn create(client: &Client, namespace: &str, cluster: &Cluster) -> anyhow::Result<Cluster> {
+    let ns_api: Api<Namespace> = Api::all(client.clone());
+    match ns_api.get(namespace).await {
+        Ok(ns) => {
+            println!("Namespace found: {}", ns.metadata.name.unwrap());
+        },
+        Err(KubeError::Api(error_response)) if error_response.code == 404 => {
+            println!("Namespace not found: {}", error_response.message);
+
+            let pp = PostParams::default();
+            let data = Namespace {
+                metadata: ObjectMeta { name: Some(namespace.to_string()), ..Default::default() },
+                ..Default::default()
+            };
+            ns_api.create(&pp, &data).await?;
+
+        },
+        Err(err) => {
+            println!("Unexpected error: {}", err);
+        },
+    };
+
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
-    let pp = PostParams::default();
+    let mut pp = PostParams::default();
+    pp.dry_run = true;
     let obj = api.create(&pp, cluster).await?;
     Ok(obj)
 }
