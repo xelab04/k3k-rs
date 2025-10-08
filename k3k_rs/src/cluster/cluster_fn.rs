@@ -6,6 +6,7 @@ use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use serde::de;
 use crate::cluster::Cluster;
+use crate::namespace;
 
 pub mod list {
     use super::*;
@@ -46,14 +47,7 @@ pub async fn create(client: &Client, namespace: &str, cluster: &Cluster) -> anyh
         },
         Err(KubeError::Api(error_response)) if error_response.code == 404 => {
             println!("Namespace not found: {}", error_response.message);
-
-            let pp = PostParams::default();
-            let data = Namespace {
-                metadata: ObjectMeta { name: Some(namespace.to_string()), ..Default::default() },
-                ..Default::default()
-            };
-            ns_api.create(&pp, &data).await?;
-
+            namespace::create_easy(&client, &namespace).await?;
         },
         Err(err) => {
             println!("Unexpected error: {}", err);
