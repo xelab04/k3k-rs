@@ -6,11 +6,6 @@ use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 // use crate::namespace::Namespace;
 
-
-// The dilemma here is that I can create the ns with just the name
-// But if I want it to be consistent with creating clusters, then I
-// would have to pass a namespace object.
-// But on the other hand, that adds unnecessary complexity.
 pub async fn create_easy(client: &Client, name: &str) -> anyhow::Result<()> {
     let api: Api<Namespace> = Api::all(client.clone());
 
@@ -29,6 +24,15 @@ pub async fn create(client: &Client, namespace: Namespace) -> anyhow::Result<()>
 
     let pp = PostParams::default();
     api.create(&pp, &namespace).await?;
+
+    Ok(())
+}
+
+pub async fn delete(client: &Client, name: &str) -> anyhow::Result<()> {
+    let api: Api<Namespace> = Api::all(client.clone());
+
+    let dp = DeleteParams::default();
+    api.delete(name, &dp).await?;
 
     Ok(())
 }

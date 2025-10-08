@@ -1,10 +1,6 @@
-use kube::{Api, Client, ResourceExt, Error as KubeError };
-use kube::error::ErrorResponse;
-
+use kube::{Api, Client, Error as KubeError };
 use kube::api::{PostParams, DeleteParams};
 use k8s_openapi::api::core::v1::Namespace;
-use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
-use serde::de;
 use crate::cluster::Cluster;
 use crate::namespace;
 
