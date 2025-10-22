@@ -4,7 +4,7 @@ use kube::{Client};
 use k3k_rs;
 use k3k_rs::cluster::{
     Cluster, ClusterSpec, ExposeSpec, ExposeLoadBalancer, ExposeNodePort, ExposeIngress,
-    PersistenceSpec, SyncSpec, SyncResourceSpec, EnvVar
+    PersistenceSpec, SyncSpec, SyncResourceSpec, EnvVar, TokenSecretRefSpec
 };
 use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 
@@ -60,11 +60,14 @@ async fn main() -> anyhow::Result<()> {
             // agentEnvs, agentArgs, workerLimit are the same as above
 
             tlsSANs: Some(Vec::from(["test.kraft.alexbissessur.dev".to_string()])),
-            clusterCIDR: Some(String::from("10.42.0.0/16")),
-            clusterDNS: Some(String::from("10.43.0.10")),
-            priorityClass: String::from("default"),
-            serviceCIDR: Some(String::from("10.43.0.0/16")),
-            tokenSecretRef: Some(String::from("my-secret-token")),
+            clusterCIDR: String::from("10.42.0.0/16"),
+            clusterDNS: String::from("10.43.0.10"),
+            priorityClass: Some(String::from("default")),
+            serviceCIDR: String::from("10.43.0.0/16"),
+            tokenSecretRef: Some(TokenSecretRefSpec {
+                name: "my-secret-token".to_string(),
+                namespace: Some("a-different-ns".to_string()),
+            }),
             mirrorHostNodes: Some(false),
 
             sync: Some(SyncSpec{
