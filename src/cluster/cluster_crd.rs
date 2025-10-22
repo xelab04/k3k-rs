@@ -170,7 +170,7 @@ pub struct ClusterStatus {
     pub serviceCIDR: Option<String>,
     pub clusterDNS: Option<String>,
     pub persistence: Option<PersistenceSpec>,
-    pub tlsSANs: Vec<String>,
+    pub tlsSANs: Option<Vec<String>>,
 }
 
 
