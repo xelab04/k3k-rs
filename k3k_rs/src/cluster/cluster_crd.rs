@@ -11,6 +11,10 @@ mod defaults {
     pub fn empty_vec<T>() -> Vec<T> { Vec::new() }
     pub fn empty_obj() -> String { String::from("{}") }
     pub fn empty_str() -> String { String::new() }
+    pub fn cluster_dns() -> String { String::from("10.43.0.10")}
+    pub fn service_cidr() -> String { String::from("10.43.0.0/16")}
+    pub fn cluster_cidr() -> String { String::from("10.42.0.0/16")}
+
 }
 
 /// Represents a k3k cluster
@@ -51,23 +55,23 @@ pub struct ClusterSpec {
     #[serde(default)]
     pub serverArgs: Option<Vec<String>>,
     #[serde(default)]
-    pub serverLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
+    pub serverLimit: Option<BTreeMap<String, IntOrString>>,
     #[serde(default)]
     pub agentEnvs: Option<Vec<EnvVar>>,
     #[serde(default)]
     pub agentArgs: Option<Vec<String>>,
     #[serde(default)]
-    pub workerLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
+    pub workerLimit: Option<BTreeMap<String, IntOrString>>,
     #[serde(default)]
     pub tlsSANs: Option<Vec<String>>,
-    #[serde(default)]
-    pub clusterCIDR: Option<String>,
-    #[serde(default)]
-    pub clusterDNS: Option<String>,
+    #[serde(default = "defaults::cluster_cidr")]
+    pub clusterCIDR: String,
+    #[serde(default = "defaults::cluster_dns")]
+    pub clusterDNS: String,
     #[serde(default)]
     pub priorityClass: Option<String>,
-    #[serde(default)]
-    pub serviceCIDR: Option<String>,
+    #[serde(default = "defaults::service_cidr")]
+    pub serviceCIDR: String,
     #[serde(default)]
     pub tokenSecretRef: Option<TokenSecretRefSpec>,
     #[serde(default)]
@@ -149,7 +153,7 @@ pub struct ExposeIngress {
 pub struct EnvVar {
     pub name: String,
     #[serde(default)]
-    pub value: Option<String>,
+    pub value: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
