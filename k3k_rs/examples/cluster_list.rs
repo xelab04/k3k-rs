@@ -1,6 +1,5 @@
-use kube::{Api, Client};
+use kube::Client;
 use k3k_rs::cluster;
-use kube::api::ListParams;
 use serde_yaml;
 
 #[tokio::main]

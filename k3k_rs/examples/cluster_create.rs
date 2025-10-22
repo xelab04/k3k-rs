@@ -5,7 +5,6 @@ use k3k_rs::cluster::{
     Cluster, ClusterSpec, ExposeSpec, ExposeLoadBalancer, ExposeNodePort, ExposeIngress,
     PersistenceSpec, SyncSpec, SyncResourceSpec
 };
-use k3k_rs::namespace;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -53,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
     // or this will create the ns automatically if it doesn't exist anyways
     let response = k3k_rs::cluster::create(&client, "k3k-default", &cluster_schema).await;
 
-    let mut result;
+    let result;
     match response {
         Err(e) => {println!("Error creating cluster {}: {}", cluster_schema.metadata.name.unwrap(), e); return Ok(());}
 
