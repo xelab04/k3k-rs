@@ -1,9 +1,6 @@
 use kube::{Client};
 use k3k_rs::cluster;
 
-use k3k_rs::namespace;
-
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
 
