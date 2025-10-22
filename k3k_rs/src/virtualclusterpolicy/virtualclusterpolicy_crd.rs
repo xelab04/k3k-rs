@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 
 mod defaults {
     pub const fn zero() -> i32 { 0 }
-    pub const fn defaultAllowedMode() -> String { "shared".to_string() }
+    pub fn defaultAllowedMode() -> String { String::from("shared") }
 
 }
 
@@ -19,12 +19,11 @@ mod defaults {
     plural = "virtualclusterpolicies",
     namespaced
 )]
+// #[kube(status = "VirtualClusterPolicyStatus")]
+pub struct VirtualClusterPolicySpec {
 
-#[kube(status = "VirtualClusterPolicyStatus")]
-pub struct ClusterSpec {
-
-    #[serde(default)]
-    pub allowedMode: Option<String>,
+    #[serde(default = "defaults::defaultAllowedMode")]
+    pub allowedMode: String,
 
     #[serde(default)]
     pub defaultNodeSelector: Option<BTreeMap<String, String>>,
@@ -52,7 +51,7 @@ pub struct ClusterSpec {
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
 pub struct LimitSpec {
-    pub limits: Option<Vec<LimitsSpec>>,
+    pub limits: Vec<LimitsSpec>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
