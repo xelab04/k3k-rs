@@ -37,75 +37,43 @@ pub struct ClusterSpec {
     #[serde(default = "defaults::zero")]
     pub agents: i32,
 
-    // spec.version
     #[serde(default = "defaults::empty_str")]
     pub version: String,
 
-    /// spec.nodeSelector
     #[serde(default)]
     pub nodeSelector: Option<BTreeMap<String, String>>,
-
-    // obligatory spec.persistence
     #[serde(default)]
     pub persistence: Option<PersistenceSpec>,
-
-    // spec.expose
     #[serde(default)]
     pub expose: Option<ExposeSpec>,
-
-    // spec.serverEnvs
     #[serde(default)]
     pub serverEnvs: Option<Vec<EnvVar>>,
-    // spec.serverArgs
     #[serde(default)]
     pub serverArgs: Option<Vec<String>>,
-    // spec.serverLimit
     #[serde(default)]
     pub serverLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
-
-    // spec.agentEnvs
     #[serde(default)]
     pub agentEnvs: Option<Vec<EnvVar>>,
-    // spec.agentArgs
     #[serde(default)]
     pub agentArgs: Option<Vec<String>>,
-    // spec.workerLimit
     #[serde(default)]
     pub workerLimit: Option<std::collections::BTreeMap<String, IntOrString>>,
-
-    // spec.tlsSANs
     #[serde(default)]
     pub tlsSANs: Option<Vec<String>>,
-
-    // spec.clusterCIDR
     #[serde(default)]
     pub clusterCIDR: Option<String>,
-
-    // spec.clusterDNS
     #[serde(default)]
     pub clusterDNS: Option<String>,
-
-    // spec.priorityClass
     #[serde(default)]
     pub priorityClass: Option<String>,
-
-    // spec.serviceCIDR
     #[serde(default)]
     pub serviceCIDR: Option<String>,
-
-    // spec.tokenSecretRef
     #[serde(default)]
     pub tokenSecretRef: Option<TokenSecretRefSpec>,
-
-    // spec.mirrorHostNodes
     #[serde(default)]
     pub mirrorHostNodes: Option<bool>,
-
-    // spec.sync
     #[serde(default)]
     pub sync: Option<SyncSpec>,
-
-    // wow these comments are useless
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
