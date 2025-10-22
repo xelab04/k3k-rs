@@ -1,2 +1,21 @@
-[workspace]
-members = ["k3k_rs"]
+[package]
+name = "k3k-rs"
+version = "0.1.0"
+edition = "2024"
+description = "Rust client library for managing K3k virtual clusters"
+license = "MIT"
+repository = "https://github.com/xelab04/k3k-rs"
+readme = "README.md"
+authors = ["Alex Bissessur <alexbissessur@gmail.com>"]
+categories = ["kubernetes", "devops", "cloud"]
+keywords = ["kubernetes"]
+
+[dependencies]
+kube = { version = "2.0.1", features = ["runtime", "derive"] }
+k8s-openapi = { version = "0.26.0", features = ["latest", "schemars"] }
+schemars = { version = "1" }
+serde = "1.0.228"
+serde_json = "1.0.145"
+anyhow = "1.0.100"
+tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
+serde_yaml = "0.9.34"
