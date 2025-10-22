@@ -1,0 +1,2 @@
+[workspace]
+members = ["k3k_rs"]
