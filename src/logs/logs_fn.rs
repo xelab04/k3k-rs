@@ -1,18 +1,15 @@
-use crate::cluster;
-use crate::cluster::Cluster;
-use crate::namespace;
 use k8s_openapi::api::core::v1::Pod;
 use kube::api::{DeleteParams, PostParams, ListParams, LogParams};
 use kube::{Api, Client, Error as KubeError};
 use kube::ResourceExt;
 
 
-pub async fn server(client: &Client, cluster_name: &str, namespace: &str) -> Vec<String> {
+pub async fn server(client: &Client, cluster_name: &str, namespace: &str) -> anyhow::Result<Vec<String>> {
     let labels = format!("cluster={},role=server", cluster_name);
     return logs(client, cluster_name, namespace, &labels).await;
 }
 
-pub async fn agent(client: &Client, cluster_name: &str, namespace: &str) -> Vec<String> {
+pub async fn agent(client: &Client, cluster_name: &str, namespace: &str) -> anyhow::Result<Vec<String>> {
     let labels = format!("cluster={},type=agent", cluster_name);
     return logs(client, cluster_name, namespace, &labels).await;
 }
@@ -22,7 +19,7 @@ async fn logs(
     cluster_name: &str,
     namespace: &str,
     labels: &str,
-) -> Vec<String> {
+) -> anyhow::Result<Vec<String>> {
 
     let default_ns = format!("k3k-{}", cluster_name);
 
@@ -40,6 +37,6 @@ async fn logs(
         logs_list.push(logs.clone());
     }
 
-    logs_list
+    Ok(logs_list)
 
 }
