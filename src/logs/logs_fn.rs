@@ -26,8 +26,13 @@ async fn logs(
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
 
     let lp = ListParams::default().labels(labels);
+    let mut lines = 10;
+    if labels.contains("server") {
+        lines = 50;
+    }
+
     let lgp = LogParams{
-        tail_lines: Some(10),
+        tail_lines: Some(lines),
         ..Default::default()
     };
 
