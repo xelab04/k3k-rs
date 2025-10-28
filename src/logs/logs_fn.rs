@@ -4,14 +4,14 @@ use kube::{Api, Client, Error as KubeError};
 use kube::ResourceExt;
 
 
-pub async fn server(client: &Client, cluster_name: &str, namespace: &str) -> anyhow::Result<Vec<String>> {
+pub async fn server(client: &Client, cluster_name: &str, namespace: &str, num_lines: i64) -> anyhow::Result<Vec<String>> {
     let labels = format!("cluster={},role=server", cluster_name);
-    return logs(client, cluster_name, namespace, &labels).await;
+    return logs(client, cluster_name, namespace, &labels, num_lines).await;
 }
 
-pub async fn agent(client: &Client, cluster_name: &str, namespace: &str) -> anyhow::Result<Vec<String>> {
+pub async fn agent(client: &Client, cluster_name: &str, namespace: &str, num_lines: i64) -> anyhow::Result<Vec<String>> {
     let labels = format!("cluster={},type=agent", cluster_name);
-    return logs(client, cluster_name, namespace, &labels).await;
+    return logs(client, cluster_name, namespace, &labels, num_lines).await;
 }
 
 async fn logs(
@@ -19,6 +19,7 @@ async fn logs(
     cluster_name: &str,
     namespace: &str,
     labels: &str,
+    num_lines: i64,
 ) -> anyhow::Result<Vec<String>> {
 
     let default_ns = format!("k3k-{}", cluster_name);
@@ -26,15 +27,16 @@ async fn logs(
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
 
     let lp = ListParams::default().labels(labels);
-    let mut lines = 10;
-    if labels.contains("server") {
-        lines = 50;
-    }
 
-    let lgp = LogParams{
-        tail_lines: Some(lines),
-        ..Default::default()
-    };
+    let lgp;
+    if num_lines > 0 {
+        lgp = LogParams{
+            tail_lines: Some(num_lines),
+            ..Default::default()
+        };
+    } else {
+        lgp = LogParams::default();
+    }
 
     let mut logs_list = Vec::new();
     for p in api.list(&lp).await.unwrap() {
