@@ -39,10 +39,19 @@ async fn logs(
     }
 
     let mut logs_list = Vec::new();
-    for p in api.list(&lp).await.unwrap() {
+    let mut pod_list;
+
+    match api.list(&lp).await {
+        Ok(pods) => pod_list = pods,
+        Err(e) => return Err(anyhow::Error::new(e)),
+    }
+
+    for p in pod_list {
         // _or(String::new
-        let logs = api.logs(p.name_any().as_str(), &lgp).await.unwrap();
-        logs_list.push(logs.clone());
+        match api.logs(p.name_any().as_str(), &lgp).await {
+            Ok(logs) => logs_list.push(logs.clone()),
+            Err(e) => return Err(anyhow::Error::new(e)),
+        }
     }
 
     Ok(logs_list)
