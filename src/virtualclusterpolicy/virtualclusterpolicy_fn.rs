@@ -48,6 +48,7 @@ pub async fn create(
     let ns_api: Api<Namespace> = Api::all(client.clone());
     match ns_api.get(namespace).await {
         Ok(ns) => {
+            // if a namespace exists, then it must have a name... duh
             println!("Namespace found: {}", ns.metadata.name.unwrap());
         }
         Err(KubeError::Api(error_response)) if error_response.code == 404 => {
