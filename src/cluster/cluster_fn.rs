@@ -1,7 +1,9 @@
+use std::collections::BTreeMap;
 use crate::cluster;
 use crate::cluster::Cluster;
 use crate::namespace;
 use k8s_openapi::api::core::v1::Namespace;
+use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client, Error as KubeError};
 
@@ -87,20 +89,28 @@ pub async fn create(
     namespace: &str,
     cluster: &Cluster,
 ) -> anyhow::Result<Cluster> {
-    let ns_api: Api<Namespace> = Api::all(client.clone());
-    match ns_api.get(namespace).await {
-        Ok(ns) => {
-            // if a namespace exists, it must have a name
-            println!("Namespace found: {}", ns.metadata.name.unwrap());
-        }
-        Err(KubeError::Api(error_response)) if error_response.code == 404 => {
-            println!("Namespace not found: {}", error_response.message);
-            namespace::create_easy(&client, &namespace).await?;
-        }
-        Err(err) => {
-            println!("Unexpected error: {}", err);
-        }
-    };
+
+    if namespace::exists(&client, &namespace).await.unwrap() {
+        println!("Namespace already exists: {}", namespace);
+    } else {
+        println!("Namespace does not exist: {}", namespace);
+        namespace::create_easy(&client, &namespace).await?;
+    }
+
+    // let ns_api: Api<Namespace> = Api::all(client.clone());
+    // match ns_api.get(namespace).await {
+    //     Ok(ns) => {
+    //         // if a namespace exists, it must have a name
+    //         println!("Namespace found: {}", ns.metadata.name.unwrap());
+    //     }
+    //     Err(KubeError::Api(error_response)) if error_response.code == 404 => {
+    //         println!("Namespace not found: {}", error_response.message);
+    //         namespace::create_easy(&client, &namespace).await?;
+    //     }
+    //     Err(err) => {
+    //         println!("Unexpected error: {}", err);
+    //     }
+    // };
 
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let mut pp = PostParams::default();
