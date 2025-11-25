@@ -115,7 +115,7 @@ pub async fn create(
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let mut pp = PostParams::default();
     // pp.dry_run = true;
-    let obj = api.create(&pp, cluster).await?;
+    let obj = api.create(&pp, cluster).await.unwrap();
     Ok(obj)
 }
 
