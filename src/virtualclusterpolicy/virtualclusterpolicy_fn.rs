@@ -41,8 +41,8 @@ pub async fn get(client: &Client, namespace: &str, name: &str) -> anyhow::Result
 
 pub async fn create(
     client: &Client,
-    namespace: &str,
     vcp: &VirtualClusterPolicy,
+    namespace: &str,
 ) -> anyhow::Result<VirtualClusterPolicy> {
 
     let ns_api: Api<Namespace> = Api::all(client.clone());

@@ -59,7 +59,7 @@ async fn main() -> anyhow::Result<()> {
                 }),
                 ..Default::default()
             }),
-            
+
             ..Default::default()
         },
     };
@@ -68,11 +68,11 @@ async fn main() -> anyhow::Result<()> {
     // namespace::create_easy(&client, "k3k-default").await?;
 
     // or this will create the ns automatically if it doesn't exist anyways
-    let response = k3k_rs::virtualclusterpolicy::create(&client, "k3k-default", &vcp_schema).await;
+    let response = k3k_rs::virtualclusterpolicy::create(&client, &vcp_schema, "k3k-default").await;
 
     let result;
     match response {
-        Err(e) => {println!("Error creating cluster {}: {}", cluster_schema.metadata.name.unwrap(), e); return Ok(());}
+        Err(e) => {println!("Error creating cluster {}: {}", vcp_schema.metadata.name.unwrap(), e); return Ok(());}
 
         Ok(response) => {
             println!("Cluster created successfully");
