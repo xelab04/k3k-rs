@@ -1,3 +1,4 @@
+use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use std::collections::BTreeMap;
 use serde_yaml;
 use kube::{Client};
@@ -11,8 +12,8 @@ use k3k_rs::virtualclusterpolicy::{
 async fn main() -> anyhow::Result<()> {
     let client = Client::try_default().await?;
 
-    // Build Cluster object in memory
-    let cluster_schema = VirtualClusterPolicy {
+    // Build virtual cluster policy
+    let vcp_schema = VirtualClusterPolicy {
         metadata: kube::core::ObjectMeta {
             name: Some("test-vpc".to_string()),
             namespace: Some("k3k-default".to_string()),
@@ -36,12 +37,11 @@ async fn main() -> anyhow::Result<()> {
             limit: Some(LimitSpec {
                 limits: vec![
                     LimitsSpec {
-                        default: BTreeMap::from([
-                            ("cpu".to_string(), IntOrString::String("2".into())),
-                            ("memory".to_string(), IntOrString::String("4Gi".into())),
+                        default: Some(BTreeMap::from([
+                            ("cpu".to_string(), IntOrString::String("30m".into())),
+                            ("memory".to_string(), IntOrString::String("256m".into())),
                             ("storage".to_string(), IntOrString::String("100Gi".into())),
-                        ]),
-
+                        ])),
                         ..Default::default()
                     }
                 ],
@@ -59,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
                 }),
                 ..Default::default()
             }),
+            
             ..Default::default()
         },
     };
@@ -67,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
     // namespace::create_easy(&client, "k3k-default").await?;
 
     // or this will create the ns automatically if it doesn't exist anyways
-    let response = k3k_rs::virtualclusterpolicy::create(&client, "k3k-default", &cluster_schema).await;
+    let response = k3k_rs::virtualclusterpolicy::create(&client, "k3k-default", &vcp_schema).await;
 
     let result;
     match response {

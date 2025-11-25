@@ -107,3 +107,28 @@ pub struct SyncResourceSpec {
     #[serde(default)]
     pub selector: Option<BTreeMap<String, String>,>
 }
+
+
+impl Default for VirtualClusterPolicySpec {
+
+    fn default() -> Self {
+        VirtualClusterPolicySpec {
+            allowedMode: "shared".to_string(),
+            defaultNodeSelector: None,
+            defaultPriorityClass: None,
+            disableNetworkPolicy: None,
+            limit: None,
+            podSecurityAdmissionLevel: None,
+            quota: None,
+            sync: Some(SyncSpec {
+                configmaps: Some(SyncResourceSpec{enabled: true, selector: None}),
+                ingresses: Some(SyncResourceSpec{enabled: false, selector: None}),
+                persistentVolumeClaims: Some(SyncResourceSpec{enabled: true, selector: None}),
+                priorityClasses: Some(SyncResourceSpec{enabled: false, selector: None}),
+                secrets: Some(SyncResourceSpec{enabled: true, selector: None}),
+                services: Some(SyncResourceSpec{enabled: true, selector: None})
+            })
+        }
+    }
+
+}
