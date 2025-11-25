@@ -14,7 +14,7 @@ mod defaults {
 #[derive(CustomResource, Serialize, Deserialize, Debug, Clone, JsonSchema)]
 #[kube(
     group = "k3k.io",
-    version = "v1alpha1",
+    version = "v1beta1",
     kind = "VirtualClusterPolicy",
     plural = "virtualclusterpolicies",
     namespaced
