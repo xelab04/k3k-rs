@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::error::Error;
 use crate::cluster;
 use crate::cluster::Cluster;
 use crate::namespace;
@@ -88,13 +89,17 @@ pub async fn create(
     client: &Client,
     namespace: &str,
     cluster: &Cluster,
-) -> anyhow::Result<Cluster> {
+) -> anyhow::Result<Cluster, Box<dyn Error>> {
 
-    if namespace::exists(&client, &namespace).await.unwrap() {
-        println!("Namespace already exists: {}", namespace);
-    } else {
-        println!("Namespace does not exist: {}", namespace);
-        namespace::create_easy(&client, &namespace).await?;
+    // if namespace::exists(&client, &namespace).await.unwrap() {
+    //     println!("Namespace already exists: {}", namespace);
+    // } else {
+    //     println!("Namespace does not exist: {}", namespace);
+    //     namespace::create_easy(&client, &namespace).await?;
+    // }
+
+    if !namespace::exists(&client, &namespace).await.unwrap() {
+        namespace::create_easy(&client, &namespace).await?
     }
 
     // let ns_api: Api<Namespace> = Api::all(client.clone());
@@ -114,8 +119,7 @@ pub async fn create(
 
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let mut pp = PostParams::default();
-    // pp.dry_run = true;
-    let obj = api.create(&pp, cluster).await.unwrap();
+    let obj = api.create(&pp, cluster).await?;
     Ok(obj)
 }
 
