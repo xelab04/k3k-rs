@@ -89,7 +89,7 @@ pub async fn create(
     client: &Client,
     namespace: &str,
     cluster: &Cluster,
-) -> anyhow::Result<Cluster, Box<dyn Error>> {
+) -> anyhow::Result<Cluster> {
 
     // if namespace::exists(&client, &namespace).await.unwrap() {
     //     println!("Namespace already exists: {}", namespace);
