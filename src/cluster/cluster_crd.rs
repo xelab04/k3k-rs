@@ -4,6 +4,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
+use crate::cluster::extra_specs::*;
+
 mod defaults {
     pub fn cluster_type() -> String { String::from("shared")}
     pub const fn zero() -> i32 { 0 }
@@ -29,148 +31,72 @@ mod defaults {
 
 #[kube(status = "ClusterStatus")]
 pub struct ClusterSpec {
-    // spec.mode => shared | virtual
-    #[serde(default = "defaults::cluster_type")]
-    pub mode: String,
-
-    // spec.servers => >= 1
-    #[serde(default = "defaults::one")]
-    pub servers: i32,
-
-    // spec.agents => >= 0 (not needed in shared)
-    #[serde(default = "defaults::zero")]
-    pub agents: i32,
-
-    #[serde(default = "defaults::empty_str")]
-    pub version: String,
 
     #[serde(default)]
-    pub nodeSelector: Option<BTreeMap<String, String>>,
+    pub addons: Vec<SecretSpec>,
     #[serde(default)]
-    pub persistence: Option<PersistenceSpec>,
-    #[serde(default)]
-    pub expose: Option<ExposeSpec>,
-    #[serde(default)]
-    pub serverEnvs: Option<Vec<EnvVar>>,
-    #[serde(default)]
-    pub serverArgs: Option<Vec<String>>,
-    #[serde(default)]
-    pub serverLimit: Option<BTreeMap<String, IntOrString>>,
-    #[serde(default)]
-    pub agentEnvs: Option<Vec<EnvVar>>,
+    pub agentAffinity: Option<AffinitySpec>,
     #[serde(default)]
     pub agentArgs: Option<Vec<String>>,
     #[serde(default)]
-    pub workerLimit: Option<BTreeMap<String, IntOrString>>,
-    #[serde(default)]
-    pub tlsSANs: Option<Vec<String>>,
+    pub agentEnvs: Option<Vec<EnvVar>>,
+    // spec.agents => >= 0 (not needed in shared)
+    #[serde(default = "defaults::zero")]
+    pub agents: i32,
     #[serde(default = "defaults::cluster_cidr")]
     pub clusterCIDR: String,
     #[serde(default = "defaults::cluster_dns")]
     pub clusterDNS: String,
     #[serde(default)]
+    pub customCAs: Option<CustomCASpec>,
+    #[serde(default)]
+    pub expose: Option<ExposeSpec>,
+    #[serde(default)]
+    pub hostUsers: Option<bool>,
+    #[serde(default)]
+    pub mirrorHostNodes: Option<bool>,
+    // spec.mode => shared | virtual
+    #[serde(default = "defaults::cluster_type")]
+    pub mode: String,
+    #[serde(default)]
+    pub nodeSelector: Option<BTreeMap<String, String>>,
+    #[serde(default)]
+    pub persistence: Option<PersistenceSpec>,
+    #[serde(default)]
     pub priorityClass: Option<String>,
+    #[serde(default)]
+    pub runtimeClassName: Option<String>,
+    #[serde(default)]
+    pub secretMounts: Option<Vec<SecretMount>>,
+    #[serde(default)]
+    pub securityContext: Option<SecurityContextSpec>,
+    #[serde(default)]
+    pub serverAffinity: Option<AffinitySpec>,
+    #[serde(default)]
+    pub serverArgs: Option<Vec<String>>,
+    #[serde(default)]
+    pub serverEnvs: Option<Vec<EnvVar>>,
+    #[serde(default)]
+    pub serverLimit: Option<BTreeMap<String, IntOrString>>,
+    #[serde(default)]
+    pub serverResources: Option<ResourcesSpec>,
+    #[serde(default = "defaults::one")]
+    pub servers: i32,
     #[serde(default = "defaults::service_cidr")]
     pub serviceCIDR: String,
     #[serde(default)]
-    pub tokenSecretRef: Option<TokenSecretRefSpec>,
-    #[serde(default)]
-    pub mirrorHostNodes: Option<bool>,
-    #[serde(default)]
     pub sync: Option<SyncSpec>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct SyncSpec {
     #[serde(default)]
-    pub configmaps: Option<SyncResourceSpec>,
-    #[serde(default)]
-    pub ingresses: Option<SyncResourceSpec>,
-    #[serde(default)]
-    pub persistentVolumeClaims: Option<SyncResourceSpec>,
-    #[serde(default)]
-    pub priorityClasses: Option<SyncResourceSpec>,
-    #[serde(default)]
-    pub secrets: Option<SyncResourceSpec>,
-    #[serde(default)]
-    pub services: Option<SyncResourceSpec>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct SyncResourceSpec {
-    #[serde(default)]
-    pub enabled: bool,
-    #[serde(default)]
-    pub selector: Option<BTreeMap<String, String>,>
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct PersistenceSpec {
-    #[serde(default)]
-    pub r#type: Option<String>,
-    #[serde(default)]
-    pub storageClassName: Option<String>,
-    #[serde(default)]
-    pub storageRequestSize: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct ExposeSpec {
-    #[serde(default)]
-    pub LoadBalancer: Option<ExposeLoadBalancer>,
-    #[serde(default)]
-    pub NodePort: Option<ExposeNodePort>,
-    #[serde(default)]
-    pub Ingress: Option<ExposeIngress>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct ExposeLoadBalancer {
-    #[serde(default)]
-    pub server_port: Option<i32>,
-    #[serde(default)]
-    pub etcd_port: Option<i32>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct ExposeNodePort {
-    #[serde(default)]
-    pub server_port: Option<i32>,
-    #[serde(default)]
-    pub etcd_port: Option<i32>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct ExposeIngress {
-    #[serde(default)]
-    pub annotations: Option<BTreeMap<String, String>>,
-    #[serde(default)]
-    pub ingressClassName: Option<String>,
-}
-
-/// Basic environment variable type
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct EnvVar {
-    pub name: String,
-    #[serde(default)]
-    pub value: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct TokenSecretRefSpec {
-    pub name: String,
-    #[serde(default)]
-    pub namespace: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, Default)]
-pub struct ClusterStatus {
-    pub hostVersion: Option<String>,
-    pub clusterCIDR: Option<String>,
-    pub serviceCIDR: Option<String>,
-    pub clusterDNS: Option<String>,
-    pub persistence: Option<PersistenceSpec>,
     pub tlsSANs: Option<Vec<String>>,
+    #[serde(default)]
+    pub tokenSecretRef: Option<TokenSecretRefSpec>,
+    #[serde(default = "defaults::empty_str")]
+    pub version: String,
+    #[serde(default)]
+    pub workerLimit: Option<BTreeMap<String, IntOrString>>,
+    #[serde(default)]
+    pub workerResources: Option<ResourcesSpec>,
+
 }
 
 
@@ -214,6 +140,10 @@ impl Default for ClusterSpec {
                     enabled: true,
                     selector: None,
                 }),
+                storageClasses: Some(SyncResourceSpec {
+                    enabled: (true),
+                    selector: None,
+                })
             }),
 
             nodeSelector: None,
@@ -228,6 +158,17 @@ impl Default for ClusterSpec {
             tokenSecretRef: None,
             serverLimit: None,
             workerLimit: None,
+
+            addons: Vec::new(),
+            agentAffinity: None,
+            customCAs: None,
+            hostUsers: None,
+            runtimeClassName: None,
+            secretMounts: None,
+            securityContext: None,
+            serverAffinity: None,
+            serverResources: None,
+            workerResources: None,
         }
     }
 }
