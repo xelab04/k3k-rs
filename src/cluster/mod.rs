@@ -4,3 +4,4 @@ pub mod extra_specs;
 
 pub use cluster_crd::*;
 pub use cluster_fn::*;
+pub use extra_specs::*;
