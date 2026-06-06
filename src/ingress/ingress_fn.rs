@@ -9,7 +9,7 @@ use kube::{
     core::{ApiResource, GroupVersionKind},
 };
 
-pub async fn create(
+pub async fn ingress_create(
     client: &Client,
     cluster_name: &str,
     namespace: &str,
