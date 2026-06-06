@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-use std::error::Error;
 use crate::cluster;
 use crate::cluster::Cluster;
 use crate::namespace;
@@ -7,6 +5,8 @@ use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client, Error as KubeError};
+use std::collections::BTreeMap;
+use std::error::Error;
 
 pub mod list {
     use super::*;
@@ -80,7 +80,6 @@ pub async fn create_easy(client: &Client, cluster_name: &str) -> anyhow::Result<
 
     let api: Api<Cluster> = Api::namespaced(client.clone(), &cluster_namespace);
     let mut pp = PostParams::default();
-    pp.dry_run = true;
     let obj = api.create(&pp, &cluster_schema).await?;
     Ok(obj)
 }
@@ -90,7 +89,6 @@ pub async fn create(
     namespace: &str,
     cluster: &Cluster,
 ) -> anyhow::Result<Cluster> {
-
     // if namespace::exists(&client, &namespace).await.unwrap() {
     //     println!("Namespace already exists: {}", namespace);
     // } else {

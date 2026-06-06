@@ -1,9 +1,9 @@
-use kube::{Api, Client, ResourceExt, Error as KubeError };
 use kube::error::ErrorResponse;
+use kube::{Api, Client, Error as KubeError, ResourceExt};
 
-use kube::api::{PostParams, DeleteParams};
 use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
+use kube::api::{DeleteParams, PostParams};
 
 use crate::namespace;
 // use crate::namespace::Namespace;
@@ -13,7 +13,10 @@ pub async fn create_easy(client: &Client, name: &str) -> anyhow::Result<()> {
 
     let pp = PostParams::default();
     let data = Namespace {
-        metadata: ObjectMeta { name: Some(name.to_string()), ..Default::default() },
+        metadata: ObjectMeta {
+            name: Some(name.to_string()),
+            ..Default::default()
+        },
         ..Default::default()
     };
     api.create(&pp, &data).await?;
@@ -40,7 +43,6 @@ pub async fn delete(client: &Client, name: &str) -> anyhow::Result<()> {
 }
 
 pub async fn exists(client: &Client, namespace: &str) -> Result<bool, anyhow::Error> {
-
     let ns_api: Api<Namespace> = Api::all(client.clone());
     match ns_api.get(namespace).await {
         Ok(ns) => {
@@ -55,5 +57,4 @@ pub async fn exists(client: &Client, namespace: &str) -> Result<bool, anyhow::Er
             return Err(err.into());
         }
     };
-
 }
